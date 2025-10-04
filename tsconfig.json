@@ -5,9 +5,10 @@
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
-    "allowImportingTsExtensions": true,
+    "isolatedModules": true,
+    "noEmit": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,
@@ -20,8 +21,12 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "types": ["vite/client", "@types/leaflet"],
-    "allowJs": true
+    "types": ["vite/client", "node"],
+    "allowJs": true,
+    "typeRoots": [
+      "./node_modules/@types"
+    ],
+    "noImplicitAny": false
   },
   "include": [
     "src",

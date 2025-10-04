@@ -1,6 +1,13 @@
 import React, { createContext, useContext, useState, useRef, useEffect } from 'react';
-import { Viewer } from 'cesium';
+import { Viewer, createWorldTerrain, Color, Cartesian3, Math as CesiumMath, UrlTemplateImageryProvider } from 'cesium';
 import 'cesium/Build/Cesium/Widgets/widgets.css';
+
+// Declare Cesium as a global variable
+declare global {
+  interface Window {
+    CESIUM_BASE_URL: string;
+  }
+}
 
 interface MapContextType {
   viewer: Viewer | null;
@@ -18,7 +25,7 @@ export const MapProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (viewerRef.current) return;
 
     const newViewer = new Viewer(container, {
-      terrainProvider: new Cesium.createWorldTerrain(),
+      terrainProvider: createWorldTerrain(),
       baseLayerPicker: false,
       timeline: false,
       animation: false,
@@ -34,10 +41,10 @@ export const MapProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     // Configure the globe to show Mars
     newViewer.scene.globe.show = false;
     newViewer.scene.skyBox.show = false;
-    newViewer.scene.backgroundColor = Cesium.Color.BLACK;
+    newViewer.scene.backgroundColor = Color.BLACK;
 
     // Add Mars base layer
-    const marsImagery = new Cesium.UrlTemplateImageryProvider({
+    const marsImagery = new UrlTemplateImageryProvider({
       url: 'https://astro.arc.nasa.gov/maps/mars/1.0.0/mars_viking_mdim21_global_mola_90npd_200m/{z}/{x}/{-y}.jpg',
       minimumLevel: 0,
       maximumLevel: 10,
@@ -53,10 +60,10 @@ export const MapProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const zoomToLocation = (longitude: number, latitude: number, height: number) => {
     if (viewerRef.current) {
       viewerRef.current.camera.flyTo({
-        destination: Cesium.Cartesian3.fromDegrees(longitude, latitude, height),
+        destination: Cartesian3.fromDegrees(longitude, latitude, height),
         orientation: {
-          heading: Cesium.Math.toRadians(0),
-          pitch: Cesium.Math.toRadians(-90),
+          heading: CesiumMath.toRadians(0),
+          pitch: CesiumMath.toRadians(-90),
           roll: 0.0,
         },
       });
@@ -64,6 +71,10 @@ export const MapProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   useEffect(() => {
+    // Set the Cesium base URL
+    window.CESIUM_BASE_URL = '/cesium/';
+    
+    // Cleanup function
     return () => {
       if (viewerRef.current) {
         viewerRef.current.destroy();
